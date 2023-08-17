@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 120
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+  users/migrations/*
+)/
+| ^/manage.py
+'''
+[tool.isort]
+line_length = 120
+multi_line_output = 5
+skip = ["api/migrations/", "users/migrations/",]
