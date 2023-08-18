@@ -1,6 +1,5 @@
-import re
-
 from rest_framework.exceptions import ValidationError
+
 
 def is_otp_valid(otp: str) -> bool:
     """
