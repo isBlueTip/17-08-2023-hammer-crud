@@ -46,20 +46,18 @@ def populate_users_invite_code(sender, instance, *args, **kwargs):
     instance.invite_code = invite_code
 
 
-class PendingUser(models.Model):
-    phone_number = models.CharField(max_length=20)
-    otp = models.CharField(max_length=8, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+class PendingUser(User):
+    otp_created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{str(self.phone_number)} | {self.otp}"
 
     def is_valid(self) -> bool:
         """10 mins OTP validation"""
-        lifespan_in_seconds = float(os.getenv("OTP_EXPIRE_TIME" * 60, 10 * 60))
+        otp_lifespan = float(os.getenv("OTP_EXPIRE_TIME" * 60, 10 * 60))
         now = datetime.datetime.now(datetime.timezone.utc)
-        time_diff = now - self.created_at
+        time_diff = now - self.otp_created_at
         time_diff = time_diff.total_seconds()
-        if time_diff >= lifespan_in_seconds:
+        if time_diff >= otp_lifespan:
             return False
         return True
