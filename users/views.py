@@ -27,15 +27,17 @@ class UserViewSet(
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # print("")
-        # print(f"request.data = {request.data}")
-        # print(f"serializer.data = {serializer.data}")
-        # print("")
 
-        # received_invite_code = serializer.validated_data.get('invite_code')  # TODO
+        received_invite_code = serializer.validated_data.pop('invite_code', None)
         received_otp = serializer.validated_data.get("otp")
+        phone_number = serializer.validated_data.get("phone_number")
 
-        user, created = User.objects.get_or_create(**serializer.data)
+        print("")
+        print(f"request.data = {request.data}")
+        print(f"serializer.validated_data = {serializer.validated_data}")
+        print("")
+
+        user, created = User.objects.get_or_create(phone_number=phone_number)
         print("")
         print(f"user = {user}")
         print(f"created = {created}")
@@ -44,7 +46,11 @@ class UserViewSet(
         if created:
             otp = generate_otp()
             user.otp = otp
-            user.save(update_fields=("otp",))
+            # referrer = User.objects.get(invite_code=received_invite_code)
+
+            if referrer := User.objects.filter(invite_code=received_invite_code).first():
+                user.referrer = referrer
+            user.save(update_fields=("otp", "referrer"))
             time.sleep(2)  # mock send_otp
             return Response("OTP has been sent to your phone", status=HTTPStatus.CREATED)
 

@@ -27,12 +27,12 @@ class User(AbstractBaseUser):
     )
     otp = models.CharField(max_length=4)
     invite_code = models.CharField(max_length=6, unique=True, null=True)
-    referred_by = models.ForeignKey("self", null=True, on_delete=models.SET_NULL)
+    referrer = models.ForeignKey("self", null=True, on_delete=models.SET_NULL)
 
     USERNAME_FIELD = "phone_number"
 
     def __str__(self):
-        return f"{self.phone_number} | {self.first_name, self.last_name}"
+        return f"{self.phone_number} | {self.first_name} {self.last_name}"
 
 
 @receiver(pre_save, sender=User)
